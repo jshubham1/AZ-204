@@ -37,6 +37,114 @@ const __dirname = path.dirname(__filename);
  */
 
 /**
+ * Clean question text by removing duplicate "Question:" patterns and text duplications
+ * @param {string} questionText - The raw question text
+ * @returns {string} - Cleaned question text
+ */
+const cleanQuestionText = (questionText) => {
+	let cleaned = questionText;
+	
+	// Remove any "Question:" prefixes (case insensitive)
+	cleaned = cleaned.replace(/^Question:\s*/gi, '');
+	
+	// Remove internal "Question:" patterns
+	cleaned = cleaned.replace(/\s*Question:\s*/gi, ' ');
+	
+	// Split by newlines and remove duplicated text
+	const lines = cleaned.split('\n');
+	const uniqueLines = [];
+	const seenLines = new Set();
+	
+	for (const line of lines) {
+		const trimmedLine = line.trim();
+		if (trimmedLine && !seenLines.has(trimmedLine)) {
+			seenLines.add(trimmedLine);
+			uniqueLines.push(line);
+		}
+	}
+	
+	cleaned = uniqueLines.join('\n');
+	
+	// Remove duplicate sentences (split by sentence endings)
+	const sentences = cleaned.split(/[.!?]+\s*/);
+	const uniqueSentences = [];
+	const seenSentences = new Set();
+	
+	for (const sentence of sentences) {
+		const trimmedSentence = sentence.trim();
+		if (trimmedSentence && !seenSentences.has(trimmedSentence.toLowerCase())) {
+			seenSentences.add(trimmedSentence.toLowerCase());
+			uniqueSentences.push(sentence);
+		}
+	}
+	
+	if (uniqueSentences.length > 1) {
+		cleaned = uniqueSentences.join('. ').trim();
+		// Ensure proper ending punctuation
+		if (!cleaned.match(/[.!?]$/)) {
+			cleaned += '?';
+		}
+	} else {
+		cleaned = uniqueSentences[0] || cleaned;
+	}
+	
+	return cleaned.trim();
+};
+
+/**
+ * Clean answer text by removing duplicate "Answer:" patterns and text duplications
+ * @param {string} answerText - The raw answer text
+ * @returns {string} - Cleaned answer text
+ */
+const cleanAnswerText = (answerText) => {
+	let cleaned = answerText;
+	
+	// Remove any "Answer:" prefixes (case insensitive)
+	cleaned = cleaned.replace(/^Answer:\s*/gi, '');
+	
+	// Remove internal "Answer:" patterns
+	cleaned = cleaned.replace(/\s*Answer:\s*/gi, ' ');
+	
+	// Split by sentences and remove duplicated text
+	const sentences = cleaned.split(/[.!?]+\s*/);
+	const uniqueSentences = [];
+	const seenSentences = new Set();
+	
+	for (const sentence of sentences) {
+		const trimmedSentence = sentence.trim();
+		if (trimmedSentence && !seenSentences.has(trimmedSentence.toLowerCase())) {
+			seenSentences.add(trimmedSentence.toLowerCase());
+			uniqueSentences.push(sentence);
+		}
+	}
+	
+	if (uniqueSentences.length > 1) {
+		cleaned = uniqueSentences.join('. ').trim();
+		// Ensure proper ending punctuation
+		if (!cleaned.match(/[.!?]$/)) {
+			cleaned += '.';
+		}
+	} else {
+		cleaned = uniqueSentences[0] || cleaned;
+	}
+	
+	// Split by newlines and remove duplicated lines as well
+	const lines = cleaned.split('\n');
+	const uniqueLines = [];
+	const seenLines = new Set();
+	
+	for (const line of lines) {
+		const trimmedLine = line.trim();
+		if (trimmedLine && !seenLines.has(trimmedLine.toLowerCase())) {
+			seenLines.add(trimmedLine.toLowerCase());
+			uniqueLines.push(line);
+		}
+	}
+	
+	return uniqueLines.join('\n').trim();
+};
+
+/**
  * Parses Knowledge Check items in the format: md: Question \n <!-- Answer -->
  * @param {string} name - The name of the knowledge check items.
  * @param {string} text - The text string containing the knowledge check items.
@@ -125,8 +233,8 @@ const parseCaseStudyItems = (name, text) => {
 			if (currentQuestion && currentAnswer) {
 				qaPairs.push({
 					id: createHash('sha256').update(currentQuestion).digest('hex'),
-					question: currentQuestion.trim(),
-					answer: currentAnswer.trim(),
+					question: cleanQuestionText(currentQuestion.trim()),
+					answer: cleanAnswerText(currentAnswer.trim()),
 					options: currentOptions,
 					answerIndexes: currentAnswerIndexes,
 					hasCode,
@@ -169,9 +277,9 @@ const parseCaseStudyItems = (name, text) => {
 				}
 			}
 			
-			currentQuestion = questionLines.join('\n').trim();
+			currentQuestion = cleanQuestionText(questionLines.join('\n').trim());
 		} else if (sectionType === 'answer') {
-			currentAnswer = content.trim();
+			currentAnswer = cleanAnswerText(content.trim());
 			
 			// Check for code in answer
 			if (content.includes('```') || content.includes('`')) {
@@ -184,8 +292,8 @@ const parseCaseStudyItems = (name, text) => {
 	if (currentQuestion && currentAnswer) {
 		qaPairs.push({
 			id: createHash('sha256').update(currentQuestion).digest('hex'),
-			question: currentQuestion.trim(),
-			answer: currentAnswer.trim(),
+			question: cleanQuestionText(currentQuestion.trim()),
+			answer: cleanAnswerText(currentAnswer.trim()),
 			options: currentOptions,
 			answerIndexes: currentAnswerIndexes,
 			hasCode,
@@ -239,11 +347,17 @@ const parseQuestionItems = (name, text) => {
 		if (/^References?:\s*$/i.test(line.trim())) { section = 'references'; continue; }
 		if (line.startsWith('Question:')) {
 			if (currentQuestion.length > 0) {
-				const question = currentQuestion.join('\n').trimEnd();
+				let question = currentQuestion.join('\n').trimEnd();
+				let answer = currentAnswer.join('\n').trimEnd();
+				
+				// Clean any duplicate patterns
+				question = cleanQuestionText(question);
+				answer = cleanAnswerText(answer);
+				
 				qaPairs.push({
 					id: createHash('sha256').update(question).digest('hex'),
 					question,
-					answer: currentAnswer.join('\n').trimEnd(),
+					answer,
 					options: [...currentOptions],
 					answerIndexes: currentAnswerIndex,
 					hasCode: currentHasCode,
@@ -266,11 +380,17 @@ const parseQuestionItems = (name, text) => {
 				itemType = null;
 			}
 
-			currentQuestion = [line.replace('Question:', '').trimStart()];
+			// Clean the question text by removing "Question:" prefix and any duplicate question patterns
+			let questionText = line.replace('Question:', '').trimStart();
+			questionText = cleanQuestionText(questionText);
+			
+			currentQuestion = [questionText];
 			itemType = 'question';
 		} else if (line.startsWith('Answer:')) {
 			section = 'answer';
-			currentAnswer = [line.replace('Answer:', '').trimStart()];
+			let answerText = line.replace('Answer:', '').trimStart();
+			answerText = cleanAnswerText(answerText);
+			currentAnswer = [answerText];
 			itemType = 'answer';
 		} else if (section === 'rationales') {
 			if (/^-\s+/.test(line.trim())) {
@@ -325,12 +445,18 @@ const parseQuestionItems = (name, text) => {
 
 	// For QA pair without trailing empty line
 	if (currentQuestion.length > 0) {
-		const question = currentQuestion.join('\n').trimEnd();
+		let question = currentQuestion.join('\n').trimEnd();
+		let answer = currentAnswer.join('\n').trimEnd();
+		
+		// Clean any duplicate patterns
+		question = cleanQuestionText(question);
+		answer = cleanAnswerText(answer);
+		
 		// Don't require options - some questions are open-ended
 		qaPairs.push({
 			id: createHash('sha256').update(question).digest('hex'),
 			question,
-			answer: currentAnswer.join('\n').trimEnd(),
+			answer,
 			options: [...currentOptions],
 			answerIndexes: currentAnswerIndex,
 			hasCode: currentHasCode,
@@ -353,7 +479,7 @@ const parseQuestionItems = (name, text) => {
  * @returns {Promise<FileContent[]>} An array of FileContent objects.
  */
 const loadContents = async (directory) => {
-	const dirPath = path.join(__dirname, '..', '..', directory);
+	const dirPath = path.join(__dirname, '..', '..', '..', directory);
 	console.log(`Loading questions from ${dirPath}`);
 	const fileNames = await fs.readdir(dirPath);
 

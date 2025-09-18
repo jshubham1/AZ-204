@@ -113,7 +113,6 @@ function QuestionForm({
 }) {
 	const [checkedValues, setCheckedValues] = useState<number[]>([]);
 	const [showAnswer, setShowAnswer] = useState(false);
-	const [showRationales, setShowRationales] = useState(false);
 	const navigation = useNavigation();
 
 	const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -293,7 +292,6 @@ function QuestionForm({
 							answerIndexes={data.answerIndexes}
 							disabled={showAnswer}
 							optionExplanations={data.optionExplanations}
-							showRationales={showRationales}
 						/>
 						{data.answerIndexes && data.answerIndexes.length > 1 && (
 							<div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-md">
@@ -337,24 +335,16 @@ function QuestionForm({
 
 				{/* Action Buttons */}
 				<div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-					<div className="grid grid-cols-1 gap-4 sm:grid-cols-4 sm:gap-3">
+					<div className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-3">
+						{/* Submit button - always show */}
 						<Button
 							type="button"
 							className="sm:justify-self-start"
 							disabled={isLoading}
-							onClick={() => setShowAnswer((ans) => !ans)}
-							bgColor={isLoading ? 'gray' : buttonColor}
+							onClick={() => setShowAnswer(true)}
+							bgColor={isLoading ? 'gray' : 'blue'}
 						>
-							{!showAnswer ? 'Show' : 'Hide'} Answer
-						</Button>
-						
-						<Button
-							type="button"
-							bgColor={showRationales ? 'green' : 'blue'}
-							className="sm:justify-self-center"
-							onClick={() => setShowRationales((v) => !v)}
-						>
-							{showRationales ? 'Hide' : 'Show'} Rationales
+							Submit
 						</Button>
 						
 						<a
@@ -401,7 +391,7 @@ function QuestionForm({
 				</div>
 
 				{/* Rationales and References */}
-				{(showAnswer || showRationales) && (data.rationale || data.references?.length) && (
+				{showAnswer && (data.rationale || data.references?.length) && (
 					<div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg shadow-sm border border-blue-200 p-6">
 						<div className="space-y-4">
 							{data.correctnessReview === 'adjusted' && (

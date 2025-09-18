@@ -4,7 +4,9 @@
 	"sideEffects": false,
 	"type": "module",
 	"scripts": {
-		"seed": "node scripts/seed.mjs",
+		"seed": "node tools/scripts/seed.mjs",
+		"convert-study-materials": "node tools/scripts/convertMarkdownToStudyMaterials.mjs",
+		"validate-project": "node tools/scripts/validate.mjs",
 		"prebuild": "cross-env NODE_ENV=production npm run seed",
 		"build": "react-router build",
 		"predev": "cross-env NODE_ENV=development npm run seed",

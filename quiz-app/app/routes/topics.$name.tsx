@@ -27,7 +27,6 @@ export default function Topic() {
 
 	const [checkedValues, setCheckedValues] = useState<number[]>([]);
 	const [showAnswer, setShowAnswer] = useState(false);
-	const [showRationales, setShowRationales] = useState(false);
 
 	const question = index < questions.length ? questions[index] : null;
 
@@ -45,7 +44,6 @@ export default function Topic() {
 		e.preventDefault();
 		setCheckedValues([]);
 		setShowAnswer(false);
-		setShowRationales(false);
 		setIndex((index) => index + 1);
 		// window.scrollTo(0, 0);
 		return false;
@@ -74,7 +72,6 @@ export default function Topic() {
 							answerIndexes={question.answerIndexes}
 							disabled={showAnswer}
 							optionExplanations={question.optionExplanations}
-							showRationales={showRationales}
 						/>
 					)}
 					{question.answerIndexes && question.answerIndexes.length > 1 && (
@@ -98,42 +95,37 @@ export default function Topic() {
 						{/* Instructions when no answer is selected */}
 						{!showAnswer && checkedValues.length === 0 && question.options && question.options.length > 0 && (
 							<div className="text-sm text-gray-500 italic">
-								Select an answer option above, then click "Submit Answer" to see if you're correct.
+								Select an answer option above, then click "Submit" to see if you're correct.
 							</div>
 						)}
 						
 						<div className="flex flex-wrap gap-3 justify-between">
-							{/* Submit button - only show when answer is selected but not yet submitted */}
-							{!showAnswer && checkedValues.length > 0 && (
+							{/* Previous Question button */}
+							{index > 0 && (
 								<Button
 									type="button"
-									onClick={() => setShowAnswer(true)}
-									bgColor="blue"
+									onClick={() => {
+										setIndex((index) => index - 1);
+										setCheckedValues([]);
+										setShowAnswer(false);
+									}}
+									bgColor="gray"
 								>
-									Submit Answer
+									Previous Question
 								</Button>
 							)}
 							
-							{/* Show/Hide Answer button - only show when answer is submitted */}
-							{showAnswer && (
-								<Button
-									type="button"
-									onClick={() => setShowAnswer(false)}
-									bgColor="green"
-								>
-									Hide Answer
-								</Button>
-							)}
-							
+							{/* Submit button - always show */}
 							<Button
 								type="button"
-								bgColor={showRationales ? 'green' : 'blue'}
-								onClick={() => setShowRationales((v) => !v)}
+								onClick={() => setShowAnswer(true)}
+								bgColor="blue"
 							>
-								{showRationales ? 'Hide' : 'Show'} Rationales
+								Submit
 							</Button>
+							
 							<Button bgColor={buttonColor} type="submit" onSubmit={handleSubmit}>
-								Next
+								Next Question
 							</Button>
 						</div>
 					</div>
