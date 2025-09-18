@@ -41,7 +41,7 @@
 		"@tailwindcss/typography": "^0.5.16",
 		"@total-typescript/ts-reset": "^0.6.1",
 		"@types/node": "^22.15.27",
-		"@types/react": "^18.3.23",
+		"@types/react": "^18.3.24",
 		"@types/react-dom": "^18.3.7",
 		"@types/react-syntax-highlighter": "^15.5.13",
 		"@vercel/react-router": "^1.1.1",

@@ -8,6 +8,13 @@ Question: An organization wants to implement a serverless workflow to solve a bu
 
 Answer: Azure Logic Apps enables serverless workloads and uses a designer-first (declarative) development model.
 
+Rationale:
+- Azure Logic Apps is specifically designed for serverless workflows with a visual, designer-first approach. While Azure Functions are serverless, they require code-first development. WebJobs are not serverless and require an App Service Plan.
+
+References:
+- https://docs.microsoft.com/en-us/azure/logic-apps/logic-apps-overview
+- https://docs.microsoft.com/en-us/azure/azure-functions/functions-overview
+
 ---
 
 Question: What is a key benefit of the Flex Consumption plan in Azure Functions hosting options?

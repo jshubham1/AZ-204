@@ -27,6 +27,7 @@ export default function Topic() {
 
 	const [checkedValues, setCheckedValues] = useState<number[]>([]);
 	const [showAnswer, setShowAnswer] = useState(false);
+	const [showRationales, setShowRationales] = useState(false);
 
 	const question = index < questions.length ? questions[index] : null;
 
@@ -36,7 +37,7 @@ export default function Topic() {
 		question.answerIndexes.length === checkedValues.length &&
 		question.answerIndexes.every((value) => checkedValues.includes(value));
 
-	const buttonColor = showAnswer || isCorrectlyAnswered ? 'green' : 'blue';
+	const buttonColor = showAnswer && isCorrectlyAnswered ? 'green' : 'blue';
 
 	const handleSubmit: FormEventHandler<HTMLFormElement | HTMLButtonElement> = (
 		e,
@@ -44,6 +45,7 @@ export default function Topic() {
 		e.preventDefault();
 		setCheckedValues([]);
 		setShowAnswer(false);
+		setShowRationales(false);
 		setIndex((index) => index + 1);
 		// window.scrollTo(0, 0);
 		return false;
@@ -71,6 +73,8 @@ export default function Topic() {
 							showAnswer={showAnswer}
 							answerIndexes={question.answerIndexes}
 							disabled={showAnswer}
+							optionExplanations={question.optionExplanations}
+							showRationales={showRationales}
 						/>
 					)}
 					{question.answerIndexes && question.answerIndexes.length > 1 && (
@@ -90,18 +94,75 @@ export default function Topic() {
 						<div className="font-bold">Answer: </div>
 						<RichMarkdown>{question.answer}</RichMarkdown>
 					</div>
-					<div className="mt-12 flex justify-between">
-						<Button
-							type="button"
-							onClick={() => setShowAnswer((ans) => !ans)}
-							bgColor={buttonColor}
-						>
-							{!showAnswer ? 'Show' : 'Hide'} Answer
-						</Button>
-						<Button bgColor={buttonColor} type="submit" onSubmit={handleSubmit}>
-							Next
-						</Button>
+					<div className="mt-12 space-y-4">
+						{/* Instructions when no answer is selected */}
+						{!showAnswer && checkedValues.length === 0 && question.options && question.options.length > 0 && (
+							<div className="text-sm text-gray-500 italic">
+								Select an answer option above, then click "Submit Answer" to see if you're correct.
+							</div>
+						)}
+						
+						<div className="flex flex-wrap gap-3 justify-between">
+							{/* Submit button - only show when answer is selected but not yet submitted */}
+							{!showAnswer && checkedValues.length > 0 && (
+								<Button
+									type="button"
+									onClick={() => setShowAnswer(true)}
+									bgColor="blue"
+								>
+									Submit Answer
+								</Button>
+							)}
+							
+							{/* Show/Hide Answer button - only show when answer is submitted */}
+							{showAnswer && (
+								<Button
+									type="button"
+									onClick={() => setShowAnswer(false)}
+									bgColor="green"
+								>
+									Hide Answer
+								</Button>
+							)}
+							
+							<Button
+								type="button"
+								bgColor={showRationales ? 'green' : 'blue'}
+								onClick={() => setShowRationales((v) => !v)}
+							>
+								{showRationales ? 'Hide' : 'Show'} Rationales
+							</Button>
+							<Button bgColor={buttonColor} type="submit" onSubmit={handleSubmit}>
+								Next
+							</Button>
+						</div>
 					</div>
+					{showAnswer && (question.rationale || question.references?.length) && (
+						<div className="mt-8 space-y-4 rounded border border-gray-200 bg-gray-50 p-4">
+							{question.correctnessReview === 'adjusted' && (
+								<span className="inline-block rounded bg-amber-200 px-2 py-0.5 text-xs font-semibold text-amber-900">Reviewed</span>
+							)}
+							{question.rationale && (
+								<div>
+									<div className="font-semibold mb-1">Rationale</div>
+									<RichMarkdown>{question.rationale}</RichMarkdown>
+								</div>
+							)}
+							{question.references && question.references.length > 0 && (
+								<div>
+									<div className="font-semibold mb-1">Further Reading</div>
+									<ul className="m-0 list-disc pl-5 text-sm">
+										{question.references.map((ref) => (
+											<li key={ref}><a href={ref} target="_blank" rel="noreferrer" className="text-indigo-600 no-underline hover:underline">{ref}</a></li>
+										))}
+									</ul>
+								</div>
+							)}
+							{question.updatedAt && (
+								<div className="text-right text-[10px] text-gray-400">Updated: {new Date(question.updatedAt).toLocaleDateString()}</div>
+							)}
+						</div>
+					)}
 				</>
 			) : (
 				<div className="text-center text-7xl italic">All done! 🎉</div>

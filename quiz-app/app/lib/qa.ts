@@ -61,6 +61,20 @@ export const getQuestionsByTopic = (topic: string): QAPair[] => {
 	return shuffleArray(questions);
 };
 
+export const getTopicQuestionCounts = (): Record<string, number> => {
+	const counts: Record<string, number> = {};
+	
+	for (const question of data) {
+		if (counts[question.topic]) {
+			counts[question.topic]++;
+		} else {
+			counts[question.topic] = 1;
+		}
+	}
+	
+	return counts;
+};
+
 const getRandomElement = <T>(array: T[]): T =>
 	array[Math.floor(Math.random() * array.length)];
 

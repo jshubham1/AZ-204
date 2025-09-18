@@ -8,5 +8,11 @@ declare module '~/db' {
 		answerIndexes: number[];
 		answer: string;
 		topic: string;
+		// New fields
+		rationale?: string;
+		optionExplanations?: string[];
+		references?: string[];
+		correctnessReview?: 'original' | 'adjusted';
+		updatedAt?: string;
 	}[];
 }
