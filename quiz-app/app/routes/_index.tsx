@@ -93,13 +93,189 @@ export default function Index() {
 	}, [data.index]);
 
 	return (
-		<QuestionForm
-			key={data.id}
-			data={data}
-			answered={answered}
-			topic={loaderData.topic}
-		/>
+		<div className="flex min-h-screen bg-gray-50">
+			{/* Side Panel */}
+			<TopicsPanel currentTopic={loaderData.topic} />
+			
+			{/* Main Content */}
+			<div className="flex-1 lg:ml-80">
+				<QuestionForm
+					key={data.id}
+					data={data}
+					answered={answered}
+					topic={loaderData.topic}
+				/>
+			</div>
+		</div>
 	);
+}
+
+function TopicsPanel({ currentTopic }: { currentTopic: string | null }) {
+	const [isOpen, setIsOpen] = useState(false);
+
+	return (
+		<>
+			{/* Mobile menu button */}
+			<div className="lg:hidden fixed top-4 left-4 z-50">
+				<button
+					onClick={() => setIsOpen(!isOpen)}
+					className="p-2 rounded-md bg-white shadow-lg border border-gray-200 text-gray-600 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+				>
+					<svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
+					</svg>
+				</button>
+			</div>
+
+			{/* Overlay for mobile */}
+			{isOpen && (
+				<div 
+					className="lg:hidden fixed inset-0 bg-gray-600 bg-opacity-75 z-40"
+					onClick={() => setIsOpen(false)}
+				/>
+			)}
+
+			{/* Side panel */}
+			<div className={clsx(
+				"fixed top-0 left-0 z-40 h-full w-80 bg-white border-r border-gray-200 shadow-lg transform transition-transform duration-300 ease-in-out overflow-y-auto",
+				"lg:translate-x-0 lg:static lg:z-auto",
+				isOpen ? "translate-x-0" : "-translate-x-full"
+			)}>
+				<div className="p-6">
+					{/* Header */}
+					<div className="mb-6">
+						<h2 className="text-xl font-bold text-gray-900 mb-2">AZ-204 Topics</h2>
+						<p className="text-sm text-gray-600">Choose a topic to practice questions</p>
+					</div>
+
+					{/* Quick Actions */}
+					<div className="space-y-3 mb-6">
+						<Link 
+							to="/exam" 
+							className="flex items-center p-3 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 transition-all duration-200 no-underline group"
+							onClick={() => setIsOpen(false)}
+						>
+							<span className="text-2xl mr-3">🎯</span>
+							<div>
+								<div className="font-semibold">Full Exam</div>
+								<div className="text-xs text-blue-100">54 questions • 130 min</div>
+							</div>
+						</Link>
+						
+						<Link 
+							to="/study" 
+							className="flex items-center p-3 rounded-lg bg-gradient-to-r from-green-600 to-teal-600 text-white hover:from-green-700 hover:to-teal-700 transition-all duration-200 no-underline group"
+							onClick={() => setIsOpen(false)}
+						>
+							<span className="text-2xl mr-3">📚</span>
+							<div>
+								<div className="font-semibold">Study Materials</div>
+								<div className="text-xs text-green-100">Guides & documentation</div>
+							</div>
+						</Link>
+					</div>
+
+					{/* All Topics Option */}
+					<div className="mb-4">
+						<Link
+							to="/"
+							className={clsx(
+								"flex items-center p-3 rounded-lg transition-all duration-200 no-underline group",
+								!currentTopic
+									? "bg-indigo-100 text-indigo-900 border border-indigo-200"
+									: "text-gray-700 hover:bg-gray-100"
+							)}
+							onClick={() => setIsOpen(false)}
+						>
+							<span className="text-lg mr-3">🎲</span>
+							<div className="font-medium">All Topics (Random)</div>
+						</Link>
+					</div>
+
+					{/* Topics List */}
+					<div className="space-y-1">
+						<h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Topics</h3>
+						{topics.map((topic) => (
+							<Link
+								key={topic}
+								to={`/?topic=${encodeURIComponent(topic)}`}
+								className={clsx(
+									"flex items-center p-3 rounded-lg transition-all duration-200 no-underline group",
+									currentTopic === topic
+										? "bg-indigo-100 text-indigo-900 border border-indigo-200"
+										: "text-gray-700 hover:bg-gray-100"
+								)}
+								onClick={() => setIsOpen(false)}
+							>
+								<span className="text-lg mr-3">{getTopicIcon(topic)}</span>
+								<div className="font-medium">{topic}</div>
+								{currentTopic === topic && (
+									<span className="ml-auto">
+										<svg className="h-4 w-4 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
+											<path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+										</svg>
+									</span>
+								)}
+							</Link>
+						))}
+					</div>
+
+					{/* Footer */}
+					<div className="mt-8 pt-6 border-t border-gray-200">
+						<div className="text-xs text-gray-500 text-center">
+							<div>AZ-204 Quiz App</div>
+							<div className="mt-1">Practice for Microsoft Azure certification</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</>
+	);
+}
+
+function getTopicIcon(topic: string): string {
+	const iconMap: Record<string, string> = {
+		'API Management': '🌐',
+		'AZ CLI': '💻',
+		'App Configuration': '⚙️',
+		'App Service': '🌍',
+		'Application Insights': '📊',
+		'Azure': '☁️',
+		'Blob Storage': '📦',
+		'Compute Solutions': '🖥️',
+		'Containers': '�',
+		'Cosmos DB': '🗄️',
+		'Docker': '🐳',
+		'Entra ID': '🔐',
+		'Event Grid': '📡',
+		'Event Hubs': '📨',
+		'Functions': '⚡',
+		'Graph': '🕸️',
+		'Key Vault': '🔑',
+		'Managed Identities': '👤',
+		'Message Queues': '📬',
+		'Monitor': '📈',
+		'Queue Storage': '📥',
+		'Resource Groups': '📋',
+		'Service Bus': '🚌',
+		'Shared Access Signatures': '🔏',
+		'Storage Redundancy': '🔄',
+		'Storage Security': '🔒',
+		'AD Application Manifest': '📋',
+		// Additional fallback mappings
+		'Monitoring': '📈',
+		'Networking': '🌐',
+		'Redis': '🚀',
+		'Resource Manager': '📋',
+		'Security': '🔒',
+		'SQL': '🗃️',
+		'Storage': '💾',
+		'Virtual Machines': '💻',
+		'Web Apps': '🌐',
+		'WebJobs': '⚡'
+	};
+	
+	return iconMap[topic] || '📝';
 }
 
 function QuestionForm({
@@ -152,75 +328,12 @@ function QuestionForm({
 	const buttonColor = showAnswer || isCorrectlyAnswered ? 'green' : 'blue';
 
 	return (
-		<div className="max-w-4xl mx-auto">
+		<div className="max-w-4xl mx-auto p-6">
 			<Form method="post" onSubmit={handleSubmit} className="space-y-6">
-				{/* Exam Mode Button */}
-				<div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg shadow-lg border border-gray-200 p-6 text-center">
-					<div className="text-white">
-						<h2 className="text-xl font-bold mb-2">Ready for the Real Test?</h2>
-						<p className="text-blue-100 mb-4">Take a full AZ-204 exam simulation with 54 questions in 130 minutes</p>
-						<Link 
-							to="/exam" 
-							className="inline-flex items-center px-6 py-3 bg-white text-blue-600 font-semibold rounded-lg hover:bg-blue-50 transition-colors shadow-md no-underline"
-						>
-							🎯 Start Full Exam Simulation
-						</Link>
-					</div>
-				</div>
-
-				{/* Study Materials Button */}
-				<div className="bg-gradient-to-r from-green-600 to-teal-600 rounded-lg shadow-lg border border-gray-200 p-6 text-center">
-					<div className="text-white">
-						<h2 className="text-xl font-bold mb-2">Study Materials</h2>
-						<p className="text-green-100 mb-4">Comprehensive guides and documentation for all AZ-204 topics</p>
-						<Link 
-							to="/study" 
-							className="inline-flex items-center px-6 py-3 bg-white text-green-600 font-semibold rounded-lg hover:bg-green-50 transition-colors shadow-md no-underline"
-						>
-							📚 Browse Study Materials
-						</Link>
-					</div>
-				</div>
-
-				{/* Topic Selector */}
-				<div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-					<div className="flex flex-wrap gap-3 items-center justify-center">
-						<label htmlFor="topic" className="text-sm font-medium text-gray-700">
-							Select Topic:
-						</label>
-						<select
-							id="topic"
-							name="topic"
-							defaultValue={topic || ''}
-							className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 min-w-[200px]"
-						>
-							<option value="">All Topics</option>
-							{topics.map((t) => (
-								<option key={t} value={t}>
-									{t}
-								</option>
-							))}
-						</select>
-						<button
-							type="submit"
-							className="rounded-md bg-indigo-600 px-4 py-2 text-white text-sm font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors"
-							name="change-topic"
-							value="1"
-						>
-							Change Topic
-						</button>
-					</div>
-				</div>
-
 				{/* Question Header */}
 				<div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
 					<h2 className="relative text-xl font-bold text-center text-gray-900 mb-2">
-						<Link 
-							to={`?topic=${encodeURIComponent(data.topic)}`}
-							className="text-indigo-600 hover:text-indigo-800 no-underline"
-						>
-							{data.topic}
-						</Link>
+						<span className="text-indigo-600">{data.topic}</span>
 						<Link
 							to={'/topics'}
 							title="Browse all topics"
