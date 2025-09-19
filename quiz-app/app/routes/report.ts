@@ -13,7 +13,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 	const title = encodeURIComponent(`Report a problem: ${question.id}`);
 
 	// Check if issue already exists
-	const searchUrl = `https://api.github.com/search/issues?q=repo:arvigeus/AZ-204+type:issue+in:title+${title}`;
+	const searchUrl = `https://api.github.com/search/issues?q=repo:jshubham1/AZ-204+type:issue+in:title+${title}`;
 
 	try {
 		const searchResponse = await fetch(searchUrl);
@@ -52,7 +52,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 				)
 			: encodeURIComponent(fullBody);
 
-	const githubIssueUrl = `https://github.com/arvigeus/AZ-204/issues/new?title=${title}&body=${body}`;
+	const githubIssueUrl = `https://github.com/jshubham1/AZ-204/issues/new?title=${title}&body=${body}`;
 
 	return redirect(githubIssueUrl);
 };

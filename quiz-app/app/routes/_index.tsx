@@ -93,20 +93,12 @@ export default function Index() {
 	}, [data.index]);
 
 	return (
-		<div className="flex min-h-screen bg-gray-50">
-			{/* Side Panel */}
-			<TopicsPanel currentTopic={loaderData.topic} />
-			
-			{/* Main Content */}
-			<div className="flex-1 lg:ml-80">
-				<QuestionForm
-					key={data.id}
-					data={data}
-					answered={answered}
-					topic={loaderData.topic}
-				/>
-			</div>
-		</div>
+		<QuestionForm
+			key={data.id}
+			data={data}
+			answered={answered}
+			topic={loaderData.topic}
+		/>
 	);
 }
 
