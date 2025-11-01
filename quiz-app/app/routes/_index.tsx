@@ -24,81 +24,98 @@ export const meta: MetaFunction = () => {
 	return [{ title: 'Developing Solutions for Microsoft Azure: Quiz' }];
 };
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
-	const url = new URL(request.url);
-	const topic = url.searchParams.get('topic');
+// Comment out loader for SPA mode compatibility
+// export const loader = async ({ request }: LoaderFunctionArgs) => {
+// 	const url = new URL(request.url);
+// 	const topic = url.searchParams.get('topic');
 
-	const id = url.searchParams.get('id');
-	const data = id != null ? getQAById(id) : getQA(topic);
+// 	const id = url.searchParams.get('id');
+// 	const data = id != null ? getQAById(id) : getQA(topic);
 
-	if (!data)
-		throw new Response(null, {
-			status: 404,
-			statusText: 'Not Found',
-		});
+// 	if (!data)
+// 		throw new Response(null, {
+// 			status: 404,
+// 			statusText: 'Not Found',
+// 		});
 
-	return { data, topic };
-};
+// 	return { data, topic };
+// };
 
-export const action = async ({ request }: ActionFunctionArgs) => {
-	const payload = await request.formData();
-	const topic = payload.get('topic');
-	const isTopicChange = payload.get('change-topic');
-	
-	// If this is a topic change, redirect to the new URL
-	if (isTopicChange) {
-		const url = new URL(request.url);
-		url.searchParams.delete('id'); // Remove current question ID
-		if (topic) {
-			url.searchParams.set('topic', topic.toString());
-		} else {
-			url.searchParams.delete('topic');
-		}
-		return redirect(url.toString());
-	}
-	
-	// Handle next question request
-	const answered = new Set<number>(
-		payload
-			.get('answered')
-			?.toString()
-			?.split(',')
-			.map((i) => Number.parseInt(i, 10)),
-	);
-	const data = getQA(topic?.toString(), answered);
-	return data;
-};
+// Comment out action for SPA mode compatibility
+// export const action = async ({ request }: ActionFunctionArgs) => {
+// 	const payload = await request.formData();
+// 	const topic = payload.get('topic');
+// 	const isTopicChange = payload.get('change-topic');
+
+// 	// If this is a topic change, redirect to the new URL
+// 	if (isTopicChange) {
+// 		const url = new URL(request.url);
+// 		url.searchParams.delete('id'); // Remove current question ID
+// 		if (topic) {
+// 			url.searchParams.set('topic', topic.toString());
+// 		} else {
+// 			url.searchParams.delete('topic');
+// 		}
+// 		return redirect(url.toString());
+// 	}
+
+// 	// Handle next question request
+// 	const answered = new Set<number>(
+// 		payload
+// 			.get('answered')
+// 			?.toString()
+// 			?.split(',')
+// 			.map((i) => Number.parseInt(i, 10)),
+// 	);
+// 	const data = getQA(topic?.toString(), answered);
+// 	return data;
+// };
 
 export default function Index() {
-	const loaderData = useLoaderData<typeof loader>();
-	const actionData = useActionData<typeof action>();
+	// For SPA mode, we'll load data client-side
+	// const loaderData = useLoaderData<typeof loader>();
+	// const actionData = useActionData<typeof action>();
 
-	const data = actionData || loaderData.data;
+	// const data = actionData || loaderData.data;
 
-	useEffect(() => {
-		const currentURL = new URL(window.location.href);
-		const searchParams = new URLSearchParams(currentURL.search);
-		searchParams.delete('index');
-		searchParams.set('id', data.id);
-		currentURL.search = searchParams.toString();
-		window.history.replaceState({}, data.id, currentURL.toString());
-	});
-
-	const answerSet = useRef(new Set<number>());
-
-	const answered = useMemo(() => {
-		answerSet.current.delete(data.index);
-		answerSet.current.add(data.index);
-		return Array.from(answerSet.current).join(',');
-	}, [data.index]);
-
+	// Placeholder for SPA mode - redirect to topics page
 	return (
-		<QuestionForm
-			key={data.id}
-			data={data}
-			answered={answered}
-			topic={loaderData.topic}
-		/>
+		<div className="max-w-4xl mx-auto p-6">
+			<div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
+				<h1 className="text-2xl font-bold text-gray-900 mb-4">AZ-204 Quiz App</h1>
+				<p className="text-gray-600 mb-6">Choose a topic to start practicing questions</p>
+				<Link
+					to="/topics"
+					className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors no-underline"
+				>
+					Browse Topics
+				</Link>
+			</div>
+		</div>
+	);
+}
+
+// Original component (commented out for SPA compatibility):
+// export default function Index() {
+// 	const loaderData = useLoaderData<typeof loader>();
+// 	const actionData = useActionData<typeof action>();
+
+// 	const data = actionData || loaderData.data;
+
+	// Placeholder for SPA mode - redirect to topics page
+	return (
+		<div className="max-w-4xl mx-auto p-6">
+			<div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
+				<h1 className="text-2xl font-bold text-gray-900 mb-4">AZ-204 Quiz App</h1>
+				<p className="text-gray-600 mb-6">Choose a topic to start practicing questions</p>
+				<Link
+					to="/topics"
+					className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors no-underline"
+				>
+					Browse Topics
+				</Link>
+			</div>
+		</div>
 	);
 }
 
