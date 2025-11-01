@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { type FormEventHandler, useState } from 'react';
+import { type FormEventHandler, useState, useEffect } from 'react';
 import type { LoaderFunctionArgs, MetaFunction } from 'react-router';
 import { Form, Link, useLoaderData, useParams } from 'react-router';
 
@@ -49,6 +49,50 @@ export default function Topic() {
 		return false;
 	};
 
+	// Keyboard navigation
+	useEffect(() => {
+		const handleKeyDown = (e: KeyboardEvent) => {
+			// Only handle keyboard events when not typing in inputs
+			if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+				return;
+			}
+
+			switch (e.key) {
+				case 'ArrowLeft':
+					e.preventDefault();
+					if (index > 0) {
+						setIndex((index) => index - 1);
+						setCheckedValues([]);
+						setShowAnswer(false);
+					}
+					break;
+				case 'ArrowRight':
+					e.preventDefault();
+					if (index < questions.length - 1) {
+						setIndex((index) => index + 1);
+						setCheckedValues([]);
+						setShowAnswer(false);
+					}
+					break;
+				case ' ':
+					e.preventDefault();
+					if (!showAnswer) {
+						setShowAnswer(true);
+					}
+					break;
+				case 'Enter':
+					e.preventDefault();
+					if (showAnswer && index < questions.length - 1) {
+						handleSubmit(e as any);
+					}
+					break;
+			}
+		};
+
+		window.addEventListener('keydown', handleKeyDown);
+		return () => window.removeEventListener('keydown', handleKeyDown);
+	}, [index, questions.length, showAnswer, handleSubmit]);
+
 	return (
 		<Form method="post" onSubmit={handleSubmit}>
 			<h2 className="mt-0 text-center">
@@ -94,11 +138,16 @@ export default function Topic() {
 					<div className="mt-12 space-y-4">
 						{/* Instructions when no answer is selected */}
 						{!showAnswer && checkedValues.length === 0 && question.options && question.options.length > 0 && (
-							<div className="text-sm text-gray-500 italic">
+							<div className="text-sm text-gray-500 dark:text-gray-400 italic">
 								Select an answer option above, then click "Submit" to see if you're correct.
 							</div>
 						)}
-						
+
+						{/* Keyboard shortcuts hint */}
+						<div className="text-xs text-gray-400 dark:text-gray-500 text-center">
+							💡 Keyboard shortcuts: ← Previous • → Next • Space Submit • Enter Next Question
+						</div>
+
 						<div className="flex flex-wrap gap-3 justify-between">
 							{/* Previous Question button */}
 							{index > 0 && (
@@ -110,21 +159,23 @@ export default function Topic() {
 										setShowAnswer(false);
 									}}
 									bgColor="gray"
+									title="Previous Question (←)"
 								>
 									Previous Question
 								</Button>
 							)}
-							
+
 							{/* Submit button - always show */}
 							<Button
 								type="button"
 								onClick={() => setShowAnswer(true)}
 								bgColor="blue"
+								title="Submit Answer (Space)"
 							>
 								Submit
 							</Button>
-							
-							<Button bgColor={buttonColor} type="submit" onSubmit={handleSubmit}>
+
+							<Button bgColor={buttonColor} type="submit" onSubmit={handleSubmit} title="Next Question (Enter)">
 								Next Question
 							</Button>
 						</div>

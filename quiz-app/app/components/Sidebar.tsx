@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useLocation } from 'react-router';
 import { topics, getTopicQuestionCounts } from '~/lib/qa';
 import { getAllStudyMaterials } from '~/lib/studyMaterials';
+import { DarkModeToggle } from './DarkModeToggle';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -37,24 +38,24 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
       
       {/* Sidebar */}
       <div className={`
-        fixed top-0 left-0 h-full w-80 bg-white shadow-xl border-r border-gray-200 z-50 transform transition-transform duration-300 ease-in-out
+        fixed top-0 left-0 h-full w-80 bg-white dark:bg-gray-800 shadow-xl border-r border-gray-200 dark:border-gray-700 z-50 transform transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
         lg:translate-x-0
       `}>
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-gray-200">
+          <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
             <Link to="/" className="flex items-center gap-2 no-underline hover:opacity-80 transition-opacity" onClick={() => window.innerWidth < 1024 && onToggle()}>
               <img
                 src="/favicon-32x32.png"
                 alt="AZ-204"
                 className="h-6 w-6"
               />
-              <h2 className="text-lg font-semibold text-indigo-900">AZ-204 Topics</h2>
+              <h2 className="text-lg font-semibold text-indigo-900 dark:text-indigo-100">AZ-204 Topics</h2>
             </Link>
             <button
               onClick={onToggle}
-              className="lg:hidden p-1 rounded-md hover:bg-gray-100 transition-colors"
+              className="lg:hidden p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
               aria-label="Close sidebar"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -75,9 +76,9 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
                   <Link
                     to="/"
                     className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                      location.pathname === '/' 
-                        ? 'bg-indigo-100 text-indigo-700' 
-                        : 'text-gray-700 hover:bg-gray-100'
+                      location.pathname === '/'
+                        ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-200'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                     }`}
                     onClick={() => window.innerWidth < 1024 && onToggle()}
                   >
@@ -90,9 +91,9 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
                   <Link
                     to="/exam"
                     className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                      isActive('/exam') 
-                        ? 'bg-indigo-100 text-indigo-700' 
-                        : 'text-gray-700 hover:bg-gray-100'
+                      isActive('/exam')
+                        ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-200'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                     }`}
                     onClick={() => window.innerWidth < 1024 && onToggle()}
                   >
@@ -104,9 +105,9 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
                   <Link
                     to="/study"
                     className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                      isActive('/study') 
-                        ? 'bg-indigo-100 text-indigo-700' 
-                        : 'text-gray-700 hover:bg-gray-100'
+                      isActive('/study')
+                        ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-200'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                     }`}
                     onClick={() => window.innerWidth < 1024 && onToggle()}
                   >
@@ -118,9 +119,9 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
                   <Link
                     to="/topics"
                     className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                      isActive('/topics') 
-                        ? 'bg-indigo-100 text-indigo-700' 
-                        : 'text-gray-700 hover:bg-gray-100'
+                      isActive('/topics')
+                        ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-200'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                     }`}
                     onClick={() => window.innerWidth < 1024 && onToggle()}
                   >
@@ -148,9 +149,9 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
                         key={topic}
                         to={`/topics/${topic}`}
                         className={`flex items-center justify-between px-3 py-2 rounded-md text-sm transition-colors group ${
-                          location.pathname === `/topics/${topic}` 
-                            ? 'bg-indigo-100 text-indigo-700' 
-                            : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                          location.pathname === `/topics/${topic}`
+                            ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-200'
+                            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200'
                         }`}
                         onClick={() => window.innerWidth < 1024 && onToggle()}
                       >
@@ -162,7 +163,7 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
                             </svg>
                           )}
                         </div>
-                        <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-100 text-indigo-700 group-hover:bg-indigo-200">
+                        <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-200 group-hover:bg-indigo-200 dark:group-hover:bg-indigo-800">
                           {questionCounts[topic]}
                         </span>
                       </Link>
@@ -174,16 +175,19 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
           </div>
 
           {/* Footer */}
-          <div className="border-t border-gray-200 p-4">
-            <div className="text-xs text-gray-500 text-center">
-              <a
-                href="https://github.com/jshubham1/AZ-204"
-                target="_blank"
-                rel="noreferrer"
-                className="text-indigo-600 hover:text-indigo-800 transition-colors"
-              >
-                View on GitHub
-              </a>
+          <div className="border-t border-gray-200 dark:border-gray-700 p-4">
+            <div className="flex items-center justify-between">
+              <div className="text-xs text-gray-500 dark:text-gray-400">
+                <a
+                  href="https://github.com/jshubham1/AZ-204"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-indigo-600 hover:text-indigo-800 transition-colors"
+                >
+                  View on GitHub
+                </a>
+              </div>
+              <DarkModeToggle />
             </div>
           </div>
         </div>
