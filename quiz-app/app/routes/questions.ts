@@ -5,6 +5,7 @@ export const meta: MetaFunction = () => {
 	return [{ title: 'Developing Solutions for Microsoft Azure: Quiz' }];
 };
 
-export const loader = async () => {
-	return { questions: data, topics };
-};
+// Remove loader for SPA mode - data will be loaded client-side
+// export const loader = async () => {
+// 	return { questions: data, topics };
+// };
